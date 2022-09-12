@@ -52,8 +52,6 @@ public class PulsarConfig {
         } else {
             try {
                 try {
-
-
                     client = PulsarClient.builder()
                             .serviceUrl(pulsarUrl)
                             .authentication(
