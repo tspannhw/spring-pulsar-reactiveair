@@ -18,9 +18,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 @SpringBootApplication
@@ -58,7 +62,24 @@ public class ReactiveairApplication implements CommandLineRunner {
                 MessageSpec.builder(message).key(uuidKey.toString());
         Mono<MessageId> messageId = messageSender
                 .sendMessage(Mono.just(messageSpecBuilder.build()));
-        System.out.println("Sent " + message);
+
+        System.out.println("Sent one message. " + message);
+
+        System.out.println("sent 100 messages");
+        List<MessageSpec<String>> messages = Collections.synchronizedList(new ArrayList<>());
+        UUID uuidKeyFake = null;
+
+        for ( int rowCounter = 0; rowCounter < 100; rowCounter++ ) {
+            uuidKeyFake = UUID.randomUUID();
+            messages.add(MessageSpec.builder(message).key(uuidKey.toString()).build());
+        }
+
+        Flux<MessageSpec<String>> flux = Flux.fromIterable(messages);
+
+        Flux<MessageId> fluxSent = messageSender.sendMessages(flux);
+        fluxSent.subscribe(System.out::println);
+
+        System.out.println("End");
     }
 
     public String messageBuilder() {
