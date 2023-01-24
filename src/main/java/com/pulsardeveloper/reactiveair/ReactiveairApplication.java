@@ -2,16 +2,10 @@ package com.pulsardeveloper.reactiveair;
 
 import com.github.javafaker.Faker;
 import org.apache.pulsar.client.api.*;
-//import org.apache.pulsar.reactive.client.adapter.AdaptedReactivePulsarClientFactory;
-//import org.apache.pulsar.reactive.client.api.MessageSpec;
-//import org.apache.pulsar.reactive.client.api.MessageSpecBuilder;
-//import org.apache.pulsar.reactive.client.api.ReactiveMessageSender;
-//import org.apache.pulsar.reactive.client.api.ReactivePulsarClient;
 import org.apache.pulsar.reactive.client.api.MessageResult;
 import org.apache.pulsar.shade.com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.TargetSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
@@ -22,14 +16,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.pulsar.reactive.config.annotation.ReactivePulsarListener;
 import org.springframework.pulsar.reactive.core.ReactivePulsarTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
-import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 @SpringBootApplication
@@ -44,7 +33,7 @@ public class ReactiveairApplication implements CommandLineRunner {
     @Autowired
     PulsarClient pulsarClient;
 
-    @Value("${topic.name:airquality}")
+    @Value("${topic.name:reactivefaker}")
     String topicName;
 
     @Autowired
@@ -54,7 +43,6 @@ public class ReactiveairApplication implements CommandLineRunner {
     public void getRows() {
         reactivePulsarTemplate.setSchema(Schema.STRING);
 
-        System.out.println("get rows");
         for ( int rowCounter = 0; rowCounter < 20; rowCounter++ ) {
             System.out.println("sending " + rowCounter);
             reactivePulsarTemplate.newMessage(messageBuilder())
@@ -90,47 +78,6 @@ public class ReactiveairApplication implements CommandLineRunner {
                 .map(MessageResult::acknowledge);
     }
 
-//
-//    @ReactivePulsarListener(subscriptionName = "hello-pulsar-sub", topics = "hello-pulsar-topic")
-//    Mono<Void> listen(String message) {
-//        System.out.println("Reactive listener received: " + message);
-//        return Mono.empty();
-//    }
-//    @Override
-//    public void run(String... args) {
-//        ReactivePulsarClient reactivePulsarClient = AdaptedReactivePulsarClientFactory.create(pulsarClient);
-//
-//        ReactiveMessageSender<String> messageSender = reactivePulsarClient
-//                .messageSender(Schema.STRING)
-//                .topic(topicName)
-//                .maxInflight(100)
-//                .producerName("reactiveProducer")
-//                .sendTimeout(Duration.ofSeconds(60L))
-//                .accessMode(ProducerAccessMode.Shared)
-//                .build();
-//        MessageSpecBuilder<String> messageSpecBuilder =
-//                MessageSpec.builder(message).key(uuidKey.toString());
-//        Mono<MessageId> messageId = messageSender
-//                .sendMessage(Mono.just(messageSpecBuilder.build()));
-//
-//        System.out.println("Sent one message. " + message);
-//
-//        System.out.println("sent 100 messages");
-//        List<MessageSpec<String>> messages = Collections.synchronizedList(new ArrayList<>());
-//        UUID uuidKeyFake = null;
-//
-//        for ( int rowCounter = 0; rowCounter < 100; rowCounter++ ) {
-//            uuidKeyFake = UUID.randomUUID();
-//            messages.add(MessageSpec.builder(message).key(uuidKey.toString()).build());
-//        }
-//
-//        Flux<MessageSpec<String>> flux = Flux.fromIterable(messages);
-//
-//        Flux<MessageId> fluxSent = messageSender.sendMessages(flux);
-//        fluxSent.subscribe(System.out::println);
-
-//        System.out.println("End");
-//    }
 
     public String messageBuilder() {
         Faker faker = new Faker();
